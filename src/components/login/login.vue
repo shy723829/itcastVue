@@ -24,9 +24,8 @@ export default {
         }
     },
     methods:{
-        handelLogin(){
-            this.axios.post('login',this.formdata)
-            .then(res=>{
+       async handelLogin(){
+           const res = await this.axios.post('login',this.formdata)
                 console.log(res)
                 const{meta:{msg,status},data}=res.data
                 if(status===200) {
@@ -37,7 +36,6 @@ export default {
                 }else{
                     this.$message.error(msg)
                 }
-            })
         }
     }
 };

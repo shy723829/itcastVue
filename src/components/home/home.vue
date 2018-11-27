@@ -137,7 +137,7 @@ export default {
 }
 .right{
     background-color: #e9eef3;
-    height:100%
+    /* height:100% */
 }
 .bg-purple-light{
     text-align: center

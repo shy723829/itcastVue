@@ -4,6 +4,7 @@ import Vue from 'vue'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import App from './App'
+import moment from 'moment'
 import router from './router'
 import '@/assets/css/index.css'
 import axios from 'axios'
@@ -12,7 +13,9 @@ Vue.prototype.axios=axios
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
-
+Vue.filter('fmtDate',(value,fmtString)=>{
+  return moment(value).format(fmtString)
+})
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
