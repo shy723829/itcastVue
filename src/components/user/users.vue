@@ -42,7 +42,7 @@
       </el-table-column>
       <el-table-column label="操作" width="300">
         <template slot-scope="scope">
-          <el-button @click="EditdialogFormVisible=true" type="primary" plain size="mini" icon="el-icon-edit" circle></el-button>
+          <el-button @click="editFormData(scope.row)" type="primary" plain size="mini" icon="el-icon-edit" circle></el-button>
           <el-button @click="deleUser(scope.row.id)" type="danger" plain size="mini" icon="el-icon-delete" circle></el-button>
           <el-button type="success" plain size="mini" icon="el-icon-check" circle></el-button>
         </template>
@@ -76,11 +76,8 @@
     <!-- 编辑用户 -->
     <el-dialog title="收货地址" :visible.sync="EditdialogFormVisible">
       <el-form :model="formData">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="formData.username" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="formData.password" autocomplete="off"></el-input>
+        <el-form-item  label="用户名" prop="username">
+          <el-input disabled v-model="formData.username" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="formData.email" autocomplete="off"></el-input>
@@ -91,7 +88,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="EditdialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="adduser()">确 定</el-button>
+        <el-button type="primary" @click="edituser()">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -123,6 +120,25 @@ export default {
     this.getData()
   },
   methods: {
+    //修改用户信息
+    async edituser(){
+      const res = await this.axios.put(`users/${this.formData.id}`,this.formData)
+      console.log(res)
+      const{data,meta:{msg,status}}=res.data
+      if(status===200){
+        this.EditdialogFormVisible=false
+        this.$message.success(msg)
+        this.formData={}
+      }
+    },
+    //编辑用户
+   async editFormData(user){
+      this.EditdialogFormVisible=true
+     this.formData.mobile = user.mobile
+     this.formData.email=user.email
+     this.formData.username=user.username
+     this.formData.id=user.id
+    },
     //删除用户
     deleUser(id) {
       this.$confirm('确定删除该用户？', '删除用户', {
