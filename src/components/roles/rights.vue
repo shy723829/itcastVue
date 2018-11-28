@@ -18,6 +18,11 @@
         <el-table-column prop="path" label="路径" width="200">
         </el-table-column>
         <el-table-column prop="level" label="层级" width="200">
+            <template slot-scope="scope">
+                <span v-if="scope.row.level==='0'">一级</span>
+                <span v-if="scope.row.level==='1'">二级</span>
+                <span v-if="scope.row.level==='2'">三级</span>
+            </template>
         </el-table-column>
       </el-table>
     </template>
@@ -37,8 +42,16 @@ export default {
     },
     methods:{
         async loadData(){
-            const res = await this.axios.get(`rights/:list`)
-            console.log(res)
+             var AUTH_TOKEN = localStorage.getItem('token')
+             this.axios.defaults.headers.common['Authorization'] = AUTH_TOKEN
+            const res = await this.axios.get(`rights/list`)
+            this.rightsList=res.data.data
+            const{data,meta:{msg,status}}=res.data
+            if(status===200){
+                this.$message.success(msg)
+            }else{
+                this.$message.error(msg)
+            }
         }
     }
 }
