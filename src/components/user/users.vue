@@ -44,7 +44,7 @@
         <template slot-scope="scope">
           <el-button @click="editFormData(scope.row)" type="primary" plain size="mini" icon="el-icon-edit" circle></el-button>
           <el-button @click="deleUser(scope.row.id)" type="danger" plain size="mini" icon="el-icon-delete" circle></el-button>
-          <el-button type="success" plain size="mini" icon="el-icon-check" circle></el-button>
+          <el-button @click="roleCheck(scope.row)" type="success" plain size="mini" icon="el-icon-check" circle></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -76,7 +76,7 @@
     <!-- 编辑用户 -->
     <el-dialog title="收货地址" :visible.sync="EditdialogFormVisible">
       <el-form :model="formData">
-        <el-form-item  label="用户名" prop="username">
+        <el-form-item label="用户名" prop="username">
           <el-input disabled v-model="formData.username" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
@@ -89,6 +89,25 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="EditdialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="edituser()">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 分配角色 -->
+    <el-dialog title="分配角色" :visible.sync="RoledialogFormVisible">
+      <el-form label-width="100px">
+        <el-form-item label="用户名">
+          {{currentName}}
+        </el-form-item>
+        <el-form-item label="角色">
+          <el-select v-model="currentRoleId">
+            <el-option label="请选择" :value="-1"></el-option>
+            <el-option v-for="(item,i) in roles" :key="i" :value="item.id" :label="item.roleName"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="RoledialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editRoleChange()">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -107,12 +126,17 @@ export default {
       dialogFormVisible: false,
       dialogVisible: false,
       EditdialogFormVisible: false,
+      RoledialogFormVisible:false,
       formData: {
         username: '',
         password: '',
         email: '',
         mobile: ''
-      }
+      },
+      currentName:'',
+      currentRoleId:-1,
+      currentUserId:-1,
+      roles:{},
     }
   },
 
@@ -120,24 +144,56 @@ export default {
     this.getData()
   },
   methods: {
-    //修改用户信息
-    async edituser(){
-      const res = await this.axios.put(`users/${this.formData.id}`,this.formData)
-      console.log(res)
+    //角色授权
+    async editRoleChange(){
+      const res = await this.axios.put(`users/${this.currentUserId}/role`,{
+        rid:this.currentRoleId
+      })
       const{data,meta:{msg,status}}=res.data
       if(status===200){
-        this.EditdialogFormVisible=false
         this.$message.success(msg)
-        this.formData={}
+        this.RoledialogFormVisible=false
+      }else{
+        this.$message.error(msg)
+      }
+    },
+    // 获取角色
+    async roleCheck(user){
+      this.RoledialogFormVisible=true
+      this.currentName=user.username
+      this.currentUserId=user.id
+      const res = await this.axios.get('roles')
+      const{data,meta:{msg,status}}=res.data
+      this.roles = data
+       this.axios.get(`users/${user.id}`)
+      .then(res=>{
+        this.currentRoleId=res.data.data.rid
+      }) 
+    
+    },
+    //修改用户信息
+    async edituser() {
+      const res = await this.axios.put(`users/${this.formData.id}`, this.formData)
+      const {
+        data,
+        meta: {
+          msg,
+          status
+        }
+      } = res.data
+      if (status === 200) {
+        this.EditdialogFormVisible = false
+        this.$message.success(msg)
+        this.formData = {}
       }
     },
     //编辑用户
-   async editFormData(user){
-      this.EditdialogFormVisible=true
-     this.formData.mobile = user.mobile
-     this.formData.email=user.email
-     this.formData.username=user.username
-     this.formData.id=user.id
+    async editFormData(user) {
+      this.EditdialogFormVisible = true
+      this.formData.mobile = user.mobile
+      this.formData.email = user.email
+      this.formData.username = user.username
+      this.formData.id = user.id
     },
     //删除用户
     deleUser(id) {
@@ -183,11 +239,14 @@ export default {
       }
     },
     // 用户状态
-    handelSwitchChange(user) {
-      this.axios.put(`users/:${user.id}/state/:${user.mg_state}`)
-        .then((res) => {
-          // console.log(res)
-        })
+    async handelSwitchChange(user) {
+      const res = await this.axios.put(`users/${user.id}/state/${user.mg_state}`)
+      const{data,meta:{msg,status}}=res.data
+      if(status===200){
+        this.$message.success(msg)
+      }else{
+        this.$message.error(msg)
+      }
     },
     // 根据关键词搜索
     checkkey() {
@@ -196,12 +255,12 @@ export default {
     },
     // 分页
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
+      // console.log(`每页 ${val} 条`)
       this.pagesize = val
       this.getData()
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
+      // console.log(`当前页: ${val}`)
       this.pagenum = val
       this.getData()
     },
