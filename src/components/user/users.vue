@@ -60,6 +60,9 @@
         <el-form-item label="用户名" prop="username">
           <el-input v-model="formData.username" autocomplete="off"></el-input>
         </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="formData.password" autocomplete="off"></el-input>
+        </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="formData.email" autocomplete="off"></el-input>
         </el-form-item>
@@ -126,17 +129,17 @@ export default {
       dialogFormVisible: false,
       dialogVisible: false,
       EditdialogFormVisible: false,
-      RoledialogFormVisible:false,
+      RoledialogFormVisible: false,
       formData: {
         username: '',
         password: '',
         email: '',
         mobile: ''
       },
-      currentName:'',
-      currentRoleId:-1,
-      currentUserId:-1,
-      roles:{},
+      currentName: '',
+      currentRoleId: -1,
+      currentUserId: -1,
+      roles: {},
     }
   },
 
@@ -145,31 +148,43 @@ export default {
   },
   methods: {
     //角色授权
-    async editRoleChange(){
-      const res = await this.axios.put(`users/${this.currentUserId}/role`,{
-        rid:this.currentRoleId
+    async editRoleChange() {
+      const res = await this.axios.put(`users/${this.currentUserId}/role`, {
+        rid: this.currentRoleId
       })
-      const{data,meta:{msg,status}}=res.data
-      if(status===200){
+      const {
+        data,
+        meta: {
+          msg,
+          status
+        }
+      } = res.data
+      if (status === 200) {
         this.$message.success(msg)
-        this.RoledialogFormVisible=false
-      }else{
+        this.RoledialogFormVisible = false
+      } else {
         this.$message.error(msg)
       }
     },
     // 获取角色
-    async roleCheck(user){
-      this.RoledialogFormVisible=true
-      this.currentName=user.username
-      this.currentUserId=user.id
+    async roleCheck(user) {
+      this.RoledialogFormVisible = true
+      this.currentName = user.username
+      this.currentUserId = user.id
       const res = await this.axios.get('roles')
-      const{data,meta:{msg,status}}=res.data
+      const {
+        data,
+        meta: {
+          msg,
+          status
+        }
+      } = res.data
       this.roles = data
-       this.axios.get(`users/${user.id}`)
-      .then(res=>{
-        this.currentRoleId=res.data.data.rid
-      }) 
-    
+      this.axios.get(`users/${user.id}`)
+        .then(res => {
+          this.currentRoleId = res.data.data.rid
+        })
+
     },
     //修改用户信息
     async edituser() {
@@ -224,7 +239,7 @@ export default {
     //添加用户
     async adduser() {
       const res = await this.axios.post('users', this.formData)
-      console.log(res)
+      // console.log(res)
       const {
         meta: {
           msg,
@@ -233,18 +248,24 @@ export default {
         data
       } = res.data
       if (status === 201) {
-        this.dialogVisible = false
         this.getData()
         this.formData = {}
+        this.dialogFormVisible = false
       }
     },
     // 用户状态
     async handelSwitchChange(user) {
       const res = await this.axios.put(`users/${user.id}/state/${user.mg_state}`)
-      const{data,meta:{msg,status}}=res.data
-      if(status===200){
+      const {
+        data,
+        meta: {
+          msg,
+          status
+        }
+      } = res.data
+      if (status === 200) {
         this.$message.success(msg)
-      }else{
+      } else {
         this.$message.error(msg)
       }
     },
