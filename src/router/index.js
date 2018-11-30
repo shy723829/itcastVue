@@ -5,9 +5,10 @@ import Home from '@/components/home/home.vue'
 import Users from '@/components/user/users.vue'
 import Rights from '@/components/roles/rights.vue'
 import Roles from '@/components/roles/roles.vue'
+import Goods from '@/components/goods/goods.vue'
 Vue.use(Router)
-
-export default new Router({
+const {Message}=()=>'element-ui'
+const router = new Router({
   routes: [
     {
       name:'login',
@@ -29,7 +30,27 @@ export default new Router({
         name:'roles',
         path:'/roles',
         component:Roles
+      },{
+        name:'goods',
+        path:'/goods',
+        component:Goods
       }]
     }
   ]
 })
+//路由的前置守卫
+router.beforeEach((to,from,next)=>{
+  if(to.name==="login"){
+    next()
+  } else {
+    const token = localStorage.getItem('token')
+    if(!token){
+      router.push({name:'login'})
+      Message.warning('请先登录')
+      return
+    }else {
+      next()
+    }
+  }
+})
+export default router
