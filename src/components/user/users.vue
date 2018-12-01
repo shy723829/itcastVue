@@ -50,7 +50,13 @@
     </el-table>
     <!-- 分页 -->
     <div class="block">
-      <el-pagination class="pagebox" @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="pagenum" :page-sizes="[2, 4, 6, 8]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      <el-pagination class="pagebox"
+       @size-change="handleSizeChange" 
+       @current-change="handleCurrentChange"
+        :current-page="pagenum"
+         :page-sizes="[2, 4, 6, 8]" 
+         :page-size="pagesize" 
+         layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
 
